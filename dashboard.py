@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import shap
 import pickle
+import import_ipynb
+from  JupyterNotebookDepressionDataset import *
 
 # Page configuration
 st.set_page_config(
@@ -44,12 +46,14 @@ def load_data():
         'Outcome': np.random.choice([0, 1], 100)
     })
 
-data = load_data()
+data =  load_data()
+real_data = pd.read_csv("ocd_patient_dataset.csv")
+real_data_p = pd.read_csv("depression_dataset_processed.csv")
 
 # Home Section
 if selection == "🏠 Home":
     st.title("Welcome to the OCD Detection Dashboard")
-    st.write("Explore the medical data regarding OCD using the tabs on the left to navigate through different types of analysis.")
+    st.write("Explore the medical data regarding OCD and Depression using the tabs on the left to navigate through different types of analysis.")
     st.image("assets/home.png", caption="The cycle of OCD", use_column_width=True)
 
 # Descriptive Analytics
@@ -58,20 +62,19 @@ if selection == "📈 Descriptive Analytics":
     st.write("This section shows some descriptive statistics and plots of the dataset.")
 
     st.write("### Dataset Overview")
-    st.dataframe(data)
+    st.dataframe(real_data)
 
     st.write("### Summary Statistics")
-    st.write(data.describe())
+    st.write(real_data.describe())
 
     st.write("### Distribution of Age")
     fig, ax = plt.subplots()
-    sns.histplot(data['Age'], kde=True, ax=ax)
+    sns.histplot(real_data['Age'], kde=True, ax=ax)
     st.pyplot(fig)
 
-    st.write("### Blood Pressure vs. Cholesterol")
-    fig, ax = plt.subplots()
-    sns.scatterplot(x=data['Blood Pressure'], y=data['Cholesterol'], hue=data['Outcome'], ax=ax)
-    st.pyplot(fig)
+    st.write("### Distribution of Age")
+    fig_ybocs = depressionRiskByAgeGroup(real_data_p)
+    st.pyplot(fig_ybocs)
 
 # Diagnostic Analytics
 if selection == "🔍 Diagnostic Analytics":
