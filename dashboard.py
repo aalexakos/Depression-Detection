@@ -52,9 +52,9 @@ real_data_p = pd.read_csv("depression_dataset_processed.csv")
 
 # Home Section
 if selection == "🏠 Home":
-    st.title("Welcome to the OCD Detection Dashboard")
-    st.write("Explore the medical data regarding OCD and Depression using the tabs on the left to navigate through different types of analysis.")
-    st.image("assets/home.png", caption="The cycle of OCD", use_column_width=True)
+    st.title("Welcome to the Depression Detection Dashboard")
+    st.write("Explore the medical data regarding Depression Detection using the tabs on the left to navigate through different types of analysis.")
+    st.image("assets/home.png", caption="Means to detect Deprression", use_column_width=True)
 
 # Descriptive Analytics
 if selection == "📈 Descriptive Analytics":
@@ -82,15 +82,13 @@ if selection == "🔍 Diagnostic Analytics":
     st.write("This section shows diagnostic relationships in the data.")
 
     st.write("### Correlation Matrix")
-    corr_matrix = data.corr()
+    cnumerical_cols = ['Y-BOCS Score (Obsessions)', 'Y-BOCS Score (Compulsions)', 'Depression Diagnosis']
+    corr_matrix = real_data_p[numerical_cols].corr()
     fig, ax = plt.subplots()
     sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', ax=ax)
     st.pyplot(fig)
 
-    st.write("### Cholesterol vs Blood Pressure by Outcome")
-    fig, ax = plt.subplots()
-    sns.lmplot(x="Cholesterol", y="Blood Pressure", hue="Outcome", data=data, height=6)
-    st.pyplot(fig)
+
 
 # Predictive Analytics
 if selection == "🔮 Predictive Analytics":
