@@ -62,19 +62,23 @@ if selection == "📈 Descriptive Analytics":
     st.write("This section shows some descriptive statistics and plots of the dataset.")
 
     st.write("### Dataset Overview")
-    st.dataframe(real_data)
+    st.dataframe(real_data.drop("Patient ID",  axis=1))
 
     st.write("### Summary Statistics")
-    st.write(real_data.describe())
+    st.write(real_data.drop("Patient ID",  axis=1).describe())
 
     st.write("### Distribution of Age")
     fig, ax = plt.subplots()
     sns.histplot(real_data['Age'], kde=True, ax=ax)
     st.pyplot(fig)
 
-    st.write("### Distribution of Age")
+    st.write("### Rate of Depression by age group")
     fig_ybocs = depressionRiskByAgeGroup(real_data_p)
     st.pyplot(fig_ybocs)
+
+    st.write("### Number of patients with Depression")
+    fig_depression = noOfDepression()
+    st.pyplot(fig_depression)
 
 # Diagnostic Analytics
 if selection == "🔍 Diagnostic Analytics":
@@ -82,10 +86,7 @@ if selection == "🔍 Diagnostic Analytics":
     st.write("This section shows diagnostic relationships in the data.")
 
     st.write("### Correlation Matrix")
-    cnumerical_cols = ['Y-BOCS Score (Obsessions)', 'Y-BOCS Score (Compulsions)', 'Depression Diagnosis']
-    corr_matrix = real_data_p[numerical_cols].corr()
-    fig, ax = plt.subplots()
-    sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', ax=ax)
+    fig = corrCompulsionDepression()
     st.pyplot(fig)
 
 
