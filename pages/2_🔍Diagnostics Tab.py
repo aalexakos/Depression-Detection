@@ -13,15 +13,45 @@ st.title("🔍Diagnostic Analytics")
 # Load dataset
 df = pd.read_csv('depression_dataset_processed.csv')
 
+# Exclude unnecessary features (Patient ID, Duration of Symptoms, Ethnicity)
+dfh = df.drop(columns=['Patient ID', 'Duration of Symptoms (months)', 
+                      'Ethnicity_African', 'Ethnicity_Hispanic', 
+                      'Ethnicity_Asian', 'Ethnicity_Caucasian'])
+
 # Top Left Area: Heatmap of correlations between all features
 st.subheader("Feature Correlation Heatmap")
 
-# Calculate the correlation matrix
+# Split features into strong and weak correlation categories
+strong_corr_features = [
+    'Age', 'Gender', 'Family History of OCD', 'Education Level_High School', 
+    'Education Level_Some College', 'Education Level_College Degree', 'Education Level_Graduate Degree', 
+    'Marital Status_Single', 'Marital Status_Divorced', 'Marital Status_Married', 
+    'Previous Diagnoses_MDD', 'Previous Diagnoses_None', 'Previous Diagnoses_PTSD', 
+    'Previous Diagnoses_GAD', 'Previous Diagnoses_Panic Disorder'
+]
+
+weak_corr_features = [
+    'Y-BOCS Score (Obsessions)', 'Y-BOCS Score (Compulsions)', 'Anxiety Diagnosis', 
+    'Obsession Type_Harm-related', 'Obsession Type_Contamination', 'Obsession Type_Symmetry', 
+    'Obsession Type_Hoarding', 'Obsession Type_Religious', 
+    'Compulsion_Type_Checking', 'Compulsion_Type_Washing', 'Compulsion_Type_Ordering', 
+    'Compulsion_Type_Praying', 'Compulsion_Type_Counting'
+]
+
+# Radio button to select the correlation strength
+corr_strength = st.radio("Choose correlation strength to display:", ('Strong Correlation', 'Weak Correlation'))
+
+# Filter the correlation matrix based on the selected features
 correlation_matrix = df.corr()
 
-# Plot the heatmap
+if corr_strength == 'Strong Correlation':
+    selected_features = strong_corr_features + ['Depression Diagnosis']
+else:
+    selected_features = weak_corr_features + ['Depression Diagnosis']
+
+# Display the heatmap
 fig, ax = plt.subplots(figsize=(15, 10))
-sns.heatmap(correlation_matrix, annot=False, cmap='coolwarm', ax=ax, center=0)
+sns.heatmap(correlation_matrix.loc[selected_features, selected_features], annot=False, cmap='coolwarm', ax=ax, center=0)
 st.pyplot(fig)
 
 # Top Right Area: Correlation with Depression Diagnosis
@@ -30,18 +60,7 @@ st.subheader("Correlation with Depression Diagnosis")
 # Dropdown to select a specific feature
 feature_choice = st.selectbox(
     "Select a specific feature to see the correlation with depression diagnosis:",
-    [
-        'Age', 'Gender', 'Duration of Symptoms (months)', 'Family History of OCD', 'Y-BOCS Score (Obsessions)',
-        'Y-BOCS Score (Compulsions)', 'Anxiety Diagnosis', 'Compulsion_Type_Checking', 'Compulsion_Type_Washing',
-        'Compulsion_Type_Ordering', 'Compulsion_Type_Praying', 'Compulsion_Type_Counting', 'Medications_SNRI', 
-        'Medications_SSRI', 'Medications_Benzodiazepine', 'Medications_None', 'Ethnicity_African', 'Ethnicity_Hispanic',
-        'Ethnicity_Asian', 'Ethnicity_Caucasian', 'Marital Status_Single', 'Marital Status_Divorced', 
-        'Marital Status_Married', 'Education Level_Some College', 'Education Level_College Degree', 
-        'Education Level_High School', 'Education Level_Graduate Degree', 'Previous Diagnoses_MDD', 
-        'Previous Diagnoses_None', 'Previous Diagnoses_PTSD', 'Previous Diagnoses_GAD', 'Previous Diagnoses_Panic Disorder',
-        'Obsession Type_Harm-related', 'Obsession Type_Contamination', 'Obsession Type_Symmetry', 
-        'Obsession Type_Hoarding', 'Obsession Type_Religious'
-    ]
+    selected_features[:-1]  # Exclude 'Depression Diagnosis' from the dropdown
 )
 
 # Get the correlation value between the selected feature and 'Depression Diagnosis'
