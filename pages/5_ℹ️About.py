@@ -11,6 +11,6 @@ Notably, the dataset outlines the medications prescribed to patients, offering v
 
 Overall, this dataset serves as a valuable resource for researchers, clinicians, and mental health professionals seeking to gain a deeper understanding of OCD and its manifestations within a diverse patient population.""")
 st.write("### Team Members")
-st.write("Alexandros Alexakos, João Calixto, Yin Shea Lai, Umiah Gohar, Katja Wilde, Kevin Arjona")
+st.write("Alexandros Alexakos, João Calixto, Yin Shea Lai, Tugba Cetinkaya, Katja Wilde, Kevin Arjona")
 st.write("### Contact")
 st.write("alexandros.alexakos@stud.ki.se")

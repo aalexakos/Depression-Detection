@@ -27,8 +27,8 @@ def user_input_features():
     gender = st.selectbox('Gender', ['Male', 'Female'])
     duration_symptoms = st.slider('Duration of Symptoms (months)', 0, 60, 12)
     family_history = st.selectbox('Family History of OCD', ['Yes', 'No'])
-    ybocs_obsession = st.slider('Y-BOCS Score (Obsessions)', 0, 40, 10)
-    ybocs_compulsion = st.slider('Y-BOCS Score (Compulsions)', 0, 40, 10)
+    ybocs_obsession = st.slider('Y-BOCS Score (Obsessions)', 0, 20, 10)
+    ybocs_compulsion = st.slider('Y-BOCS Score (Compulsions)', 0, 20, 10)
     anxiety_diag = st.selectbox('Anxiety Diagnosis', ['Yes', 'No'])
 
     # Compulsion Type: Single dropdown for all types
