@@ -18,8 +18,9 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-st.title("ℹ️ About")
+st.title("About")
 st.write("""The "OCD Patient Dataset: Demographics & Clinical Data" is a comprehensive collection of information pertaining to 1500 individuals diagnosed with Obsessive-Compulsive Disorder (OCD). This dataset encompasses a wide range of parameters, providing a detailed insight into the demographic and clinical profiles of these individuals.""")
+st.write("**Reference to the dataset:** https://www.kaggle.com/datasets/ohinhaque/ocd-patient-dataset-demographics-and-clinical-data")
 st.write("### Dataset")
 st.write("""Included in this dataset are key demographic details such as age, gender, ethnicity, marital status, and education level, offering a comprehensive overview of the sample population. Additionally, clinical information like the date of OCD diagnosis, duration of symptoms, and any previous psychiatric diagnoses are recorded, providing context to the patients' journeys.
 
@@ -31,4 +32,4 @@ Overall, this dataset serves as a valuable resource for researchers, clinicians,
 st.write("### Team Members")
 st.write("Alexandros Alexakos, João Calixto, Yin Shea Lai, Tugba Cetinkaya, Katja Wilde, Kevin Arjona")
 st.write("### Contact")
-st.write("alexandros.alexakos@stud.ki.se")
+st.write("For any inquiries, please contact us via our email: alexandros.alexakos@stud.ki.se")

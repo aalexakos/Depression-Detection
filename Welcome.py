@@ -32,4 +32,5 @@ st.markdown("""
 
 st.title("Welcome to the Depression Detection Dashboard")
 st.write("Explore the medical data regarding OCD and depression using the tabs on the left to navigate through different types of analysis.")
-st.image("assets/home.png", caption="The cycle of OCD", use_column_width=True)
+st.write("**Aim:** The early detection tool is for clinicians at the Karolinska University Hospital to help identify depression at its early stages based on the observed clinical parameters of the patients, thereby improving patient outcomes, reducing healthcare costs, and enhancing overall operational efficiency in diagnosis and treatment.")
+st.write("**Intended Users:** The primary users are medical doctors (MDs) and other healthcare professionals at the Karolinska University Hospital. The tool is not intended to replace healthcare practitioners, instead it will serve as a complementary aid in their daily practice, enhancing their capacity to detect and treat depression early.")
