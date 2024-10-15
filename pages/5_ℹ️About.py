@@ -1,5 +1,23 @@
 import streamlit as st
 
+# Sidebar configuration
+st.sidebar.image("./assets/sidebar.png",)
+
+# Custom CSS to make the sidebar prettier
+st.markdown("""
+    <style>
+    .sidebar .sidebar-content {
+        background-color: #f0f2f6;
+    }
+    .sidebar .sidebar-content h2 {
+        color: #4b72b8;
+    }
+    .css-17eq0hr { 
+        background-color: #f0f2f6; 
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
 st.title("ℹ️ About")
 st.write("""The "OCD Patient Dataset: Demographics & Clinical Data" is a comprehensive collection of information pertaining to 1500 individuals diagnosed with Obsessive-Compulsive Disorder (OCD). This dataset encompasses a wide range of parameters, providing a detailed insight into the demographic and clinical profiles of these individuals.""")
 st.write("### Dataset")

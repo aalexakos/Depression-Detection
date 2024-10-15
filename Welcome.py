@@ -30,6 +30,6 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-st.title("Welcome to the OCD Detection Dashboard")
-st.write("Explore the medical data regarding OCD using the tabs on the left to navigate through different types of analysis.")
+st.title("Welcome to the Depression Detection Dashboard")
+st.write("Explore the medical data regarding OCD and depression using the tabs on the left to navigate through different types of analysis.")
 st.image("assets/home.png", caption="The cycle of OCD", use_column_width=True)

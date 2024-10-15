@@ -7,6 +7,21 @@ import seaborn as sns
 # Page configuration
 st.set_page_config(page_title="Descriptive Analytics", layout="wide")
 
+# Sidebar configuration
+st.sidebar.image("./assets/sidebar.png",)
+
+# Custom CSS to apply a navy blue theme
+st.markdown("""
+    <style>
+    .sidebar .sidebar-content {
+        background-color: #f0f2f6;
+    }
+    h1, h2, h3, h4, h5, h6, .stText {
+        color: #001f3f !important;  /* Navy blue */
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
 # Title
 st.title("📈Descriptive Analytics")
 
@@ -49,10 +64,10 @@ with col1:
 
     # Display the total patients with the selected diagnosis
     if diagnosis_type == 'None':
-        st.markdown(f"<h1 style='text-align: center; color: green;'>{total_patients}</h1>", unsafe_allow_html=True)
+        st.markdown(f"<h1 style='text-align: center; color: #001f3f;'>{total_patients}</h1>", unsafe_allow_html=True)
         st.write("Displaying the total number of patients in the dataset.")
     else:
-        st.markdown(f"<h1 style='text-align: center; color: green;'>{total_with}</h1>", unsafe_allow_html=True)
+        st.markdown(f"<h1 style='text-align: center; color: #001f3f;'>{total_with}</h1>", unsafe_allow_html=True)
         st.write(f"Total number of patients with {diagnosis_type.lower()}.")
 
 # Right Top Area: Pie Chart Visualization
@@ -61,11 +76,11 @@ with col2:
         # Prepare the pie chart data
         labels = ['With Diagnosis', 'Without Diagnosis']
         sizes = [total_with, total_without]
-        colors = ['#ff9999','#66b3ff']
+        colors = ['#001f3f', '#004080']  # Navy blue shades
 
         # Create the pie chart
         fig, ax = plt.subplots()
-        ax.pie(sizes, labels=labels, colors=colors, autopct='%1.1f%%', startangle=90)
+        ax.pie(sizes, labels=labels, colors=colors, autopct='%1.1f%%', startangle=90, textprops={'color': "white"})
         ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
         # Display the pie chart in the app
@@ -129,8 +144,15 @@ with col3:
     elif feature_choice == 'Education Level':
         chart_data = calculate_distribution('Education Level_', data_to_plot)
 
-    # Create a bar chart for the selected feature
-    st.bar_chart(chart_data)
+    # Create a bar chart for the selected feature using matplotlib
+    fig, ax = plt.subplots()
+    ax.bar(chart_data.index, chart_data.values, color='#001f3f')  # Navy blue bars
+    ax.set_xlabel(feature_choice)
+    ax.set_ylabel('Count')
+    ax.set_title(f'Distribution of {feature_choice}', color='#001f3f')
+
+    # Display the bar chart in the app
+    st.pyplot(fig)
 
 # Right Bottom Area: Distribution of Medications and Previous Diagnoses
 with col4:
@@ -164,8 +186,26 @@ with col4:
             "None": med_data_to_plot['Medications_None'].sum()
         }
         med_chart_df = pd.DataFrame(list(med_chart_data.items()), columns=['Medication', 'Count'])
-        st.bar_chart(med_chart_df.set_index('Medication'))
+
+        # Create a bar chart using matplotlib for medications
+        fig, ax = plt.subplots()
+        ax.bar(med_chart_df['Medication'], med_chart_df['Count'], color='#001f3f')  # Navy blue bars
+        ax.set_xlabel('Medication')
+        ax.set_ylabel('Count')
+        ax.set_title('Distribution of Medications', color='#001f3f')
+
+        # Display the bar chart
+        st.pyplot(fig)
     
     elif med_diag_choice == 'Previous Diagnosis':
         diag_chart_data = calculate_distribution('Previous Diagnoses_', med_data_to_plot)
-        st.bar_chart(diag_chart_data)
+
+        # Create a bar chart using matplotlib for previous diagnoses
+        fig, ax = plt.subplots()
+        ax.bar(diag_chart_data.index, diag_chart_data.values, color='#001f3f')  # Navy blue bars
+        ax.set_xlabel('Previous Diagnoses')
+        ax.set_ylabel('Count')
+        ax.set_title('Distribution of Previous Diagnoses', color='#001f3f')
+
+        # Display the bar chart
+        st.pyplot(fig)

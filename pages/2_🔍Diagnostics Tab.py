@@ -7,8 +7,34 @@ import seaborn as sns
 # Page configuration
 st.set_page_config(page_title="Diagnostic Analytics", layout="wide")
 
+# Sidebar configuration
+st.sidebar.image("./assets/sidebar.png")
+
+# Custom CSS to style the sidebar and main content area
+st.markdown("""
+    <style>
+    .sidebar .sidebar-content {
+        background-color: #f0f2f6;
+    }
+    .sidebar .sidebar-content h2 {
+        color: #4b72b8;
+    }
+    .css-17eq0hr { 
+        background-color: #f0f2f6; 
+    }
+    .section {
+        padding: 20px;
+        background-color: #e6f0ff; /* Light navy for section background */
+        margin-bottom: 20px; /* Space between sections */
+    }
+    .subheader {
+        color: #003366; /* Navy color for subheaders */
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
 # Title
-st.title("🔍Diagnostic Analytics")
+st.title("🔍 Diagnostic Analytics")
 
 # Load dataset
 df = pd.read_csv('depression_dataset_processed.csv')
@@ -54,6 +80,8 @@ fig, ax = plt.subplots(figsize=(15, 10))
 sns.heatmap(correlation_matrix.loc[selected_features, selected_features], annot=False, cmap='coolwarm', ax=ax, center=0)
 st.pyplot(fig)
 
+st.markdown("---")  # Optional separator line
+
 # Top Right Area: Correlation with Depression Diagnosis
 st.subheader("Correlation with Depression Diagnosis")
 
@@ -67,7 +95,7 @@ feature_choice = st.selectbox(
 correlation_value = correlation_matrix.loc['Depression Diagnosis', feature_choice]
 
 # Display the correlation value with explanation
-st.markdown(f"### Correlation with Depression Diagnosis: {correlation_value:.2f}")
+st.markdown(f"### Correlation between {feature_choice} and Depression Diagnosis: {correlation_value:.2f}")
 
 # Interpretation based on the strength of correlation
 if correlation_value > 0.5:
@@ -88,6 +116,7 @@ left_col, right_col = st.columns(2)
 
 # Left Bottom Area: Associations between Compulsion & Obsession Types and Depression
 with left_col:
+    st.markdown("---")  # Optional separator line
     st.subheader("Associations between Depression with Compulsion & Obsession Types")
     
     # Radio button to choose between Compulsion and Obsession types
@@ -104,7 +133,7 @@ with left_col:
 
         # Plot the correlations for compulsion types
         fig, ax = plt.subplots(figsize=(10, 6))
-        ax.bar(range(len(compulsion_correlations)), compulsion_correlations)
+        ax.bar(range(len(compulsion_correlations)), compulsion_correlations, color='#003366')  # Navy color
         ax.set_xticks(range(len(compulsion_correlations)))
         ax.set_xticklabels(['Checking', 'Washing', 'Ordering', 'Praying', 'Counting'], rotation=45)
         ax.set_xlabel('Compulsion Type')
@@ -119,7 +148,7 @@ with left_col:
 
         # Plot the correlations for obsession types
         fig, ax = plt.subplots(figsize=(10, 6))
-        ax.bar(range(len(obsession_correlations)), obsession_correlations)
+        ax.bar(range(len(obsession_correlations)), obsession_correlations, color='#003366')  # Navy color
         ax.set_xticks(range(len(obsession_correlations)))
         ax.set_xticklabels(['Harm-related', 'Contamination', 'Symmetry', 'Hoarding', 'Religious'], rotation=45)
         ax.set_xlabel('Obsession Type')
@@ -130,6 +159,7 @@ with left_col:
 
 # Right Bottom Area: Relationship between Demographics and Depression Likelihood
 with right_col:
+    st.markdown("---")  # Optional separator line
     st.subheader("Relationship between Patients' Demographic Factors and the Likelihood of Depression")
 
     # Dropdown to select demographic factor
@@ -153,8 +183,8 @@ with right_col:
         
         # Plot side-by-side bars for depression and no-depression
         fig, ax = plt.subplots(figsize=(10, 6))
-        ax.bar(age_groups - bar_width / 2, age_depression, bar_width, label='Depression Diagnosis')
-        ax.bar(age_groups + bar_width / 2, age_no_depression, bar_width, label='No Depression Diagnosis')
+        ax.bar(age_groups - bar_width / 2, age_depression, bar_width, label='Depression Diagnosis', color='#003366')
+        ax.bar(age_groups + bar_width / 2, age_no_depression, bar_width, label='No Depression Diagnosis', color='#99ccff')
 
         ax.set_xticks(age_groups)
         ax.set_xticklabels(age_depression.index, rotation=45)
@@ -180,8 +210,8 @@ with right_col:
 
         # Plot side-by-side bars for depression and no-depression
         fig, ax = plt.subplots(figsize=(8, 5))
-        ax.bar(gender_groups - bar_width / 2, gender_depression, bar_width, label='Depression Diagnosis')
-        ax.bar(gender_groups + bar_width / 2, gender_no_depression, bar_width, label='No Depression Diagnosis')
+        ax.bar(gender_groups - bar_width / 2, gender_depression, bar_width, label='Depression Diagnosis', color='#003366')
+        ax.bar(gender_groups + bar_width / 2, gender_no_depression, bar_width, label='No Depression Diagnosis', color='#99ccff')
 
         ax.set_xticks(gender_groups)
         ax.set_xticklabels(gender_depression.index, rotation=45)
@@ -211,8 +241,8 @@ with right_col:
 
         # Plot side-by-side bars for depression and no-depression
         fig, ax = plt.subplots(figsize=(8, 5))
-        ax.bar(ethnicity_groups - bar_width / 2, ethnicity_depression, bar_width, label='Depression Diagnosis')
-        ax.bar(ethnicity_groups + bar_width / 2, ethnicity_no_depression, bar_width, label='No Depression Diagnosis')
+        ax.bar(ethnicity_groups - bar_width / 2, ethnicity_depression, bar_width, label='Depression Diagnosis', color='#003366')
+        ax.bar(ethnicity_groups + bar_width / 2, ethnicity_no_depression, bar_width, label='No Depression Diagnosis', color='#99ccff')
 
         ax.set_xticks(ethnicity_groups)
         ax.set_xticklabels(ethnicity_depression.index, rotation=45)
