@@ -15,10 +15,7 @@ st.markdown("""
     <style>
     .sidebar .sidebar-content {
         background-color: #f0f2f6;
-    }
-    h1, h2, h3, h4, h5, h6, .stText {
-        color: #001f3f !important;  /* Navy blue */
-    }
+    })
     </style>
     """, unsafe_allow_html=True)
 
@@ -64,10 +61,10 @@ with col1:
 
     # Display the total patients with the selected diagnosis
     if diagnosis_type == 'None':
-        st.markdown(f"<h1 style='text-align: center; color: #001f3f;'>{total_patients}</h1>", unsafe_allow_html=True)
+        st.markdown(f"<h1 style='text-align: center;'>{total_patients}</h1>", unsafe_allow_html=True)
         st.write("Displaying the total number of patients in the dataset.")
     else:
-        st.markdown(f"<h1 style='text-align: center; color: #001f3f;'>{total_with}</h1>", unsafe_allow_html=True)
+        st.markdown(f"<h1 style='text-align: center;'>{total_with}</h1>", unsafe_allow_html=True)
         st.write(f"Total number of patients with {diagnosis_type.lower()}.")
 
 # Right Top Area: Pie Chart Visualization
