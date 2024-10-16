@@ -27,7 +27,7 @@ st.markdown("""
 st.title("🔮Predictive Tab - Depression Prediction")
 
 # Load the pre-trained model from the assets folder
-file_path = "./assets/trained_model.pickle"
+file_path = "./assets/best_model.pickle"
 with open(file_path, "rb") as file:
     model = pickle.load(file)
 
