@@ -53,7 +53,7 @@ def user_input_features():
         ybocs_obsession = st.slider('Y-BOCS Score (Obsessions)', 0, 20, 10)
         ybocs_compulsion = st.slider('Y-BOCS Score (Compulsions)', 0, 20, 10)
         anxiety_diag = st.selectbox('Anxiety Diagnosis', ['Yes', 'No'])
-        previous_diagnosis = st.selectbox('Previous Diagnosis', ['MDD', 'No Previous Diagnoses', 'PTSD', 'GAD', 'Panic Disorder'])
+        previous_diagnosis = st.selectbox('Previous Diagnosis', ['MDD', 'None', 'PTSD', 'GAD', 'Panic Disorder'])
     with col4:
         compulsion_type = st.selectbox(
             'Compulsion Type', ['Checking', 'Washing', 'Ordering', 'Praying', 'Counting'])
@@ -99,7 +99,7 @@ def user_input_features():
         'Education Level_Graduate Degree': 1 if education_level == 'Graduate Degree' else 0,
 
         'Previous Diagnoses_MDD': 1 if previous_diagnosis == 'MDD' else 0,
-        'Previous Diagnoses_No Previous Diagnoses': 1 if previous_diagnosis == 'No Previous Diagnoses' else 0,
+        'Previous Diagnoses_None': 1 if previous_diagnosis == 'None' else 0,
         'Previous Diagnoses_PTSD': 1 if previous_diagnosis == 'PTSD' else 0,
         'Previous Diagnoses_GAD': 1 if previous_diagnosis == 'GAD' else 0,
         'Previous Diagnoses_Panic Disorder': 1 if previous_diagnosis == 'Panic Disorder' else 0,
