@@ -174,7 +174,7 @@ with right_col:
         age_bins = [0, 18, 30, 45, 60, 100]
         age_labels = ['0-18', '19-30', '31-45', '46-60', '60+']
         df['age_group'] = pd.cut(df['Age'], bins=age_bins, labels=age_labels)
-        age_depression = df.groupby('age_group')['Depression Diagnosis'].mean() * 100
+        age_depression = df.groupby('age_group', observed=False)['Depression Diagnosis'].mean() * 100
         age_no_depression = 100 - age_depression  # Patients without depression
 
         # Define positions for side-by-side bars

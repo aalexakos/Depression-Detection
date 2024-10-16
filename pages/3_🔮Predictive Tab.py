@@ -135,7 +135,6 @@ if st.button('Predict'):
     # Display the prediction result
     st.subheader("Prediction Result")
     
-    # Assuming 1 represents depression diagnosis and 0 represents no depression diagnosis
     if st.session_state.prediction_result == 1:
         # Display depression result in a visually appealing card-like style
         st.markdown("""
