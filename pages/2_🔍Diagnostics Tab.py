@@ -8,19 +8,20 @@ import seaborn as sns
 st.set_page_config(page_title="Diagnostic Analytics", layout="wide")
 
 # Sidebar configuration
-st.sidebar.image("./assets/sidebar.png")
+st.sidebar.header("Depression Detection")
+st.sidebar.image("./assets/sidebar.png",)
 
 # Custom CSS to style the sidebar and main content area
 st.markdown("""
     <style>
     .sidebar .sidebar-content {
-        background-color: #f0f2f6;
+        background-color: #f9f6f1;
     }
     .sidebar .sidebar-content h2 {
         color: #4b72b8;
     }
     .css-17eq0hr { 
-        background-color: #f0f2f6; 
+        background-color: #f9f6f1; 
     }
     .section {
         padding: 20px;
@@ -35,6 +36,9 @@ st.markdown("""
 
 # Title
 st.title("🔍 Diagnostic Analytics")
+
+st.subheader("What is correlation?")
+st.write("""Correlation measures the strength and direction of a relationship between two variables. It helps identify patterns, showing how one variable may increase or decrease in relation to another. A positive correlation means both variables move in the same direction, while a negative correlation means they move in opposite directions. Correlation values range from -1 to 1, with 0 indicating no relationship. It’s useful for understanding connections between data points, like how education level might relate to depression diagnosis.""")
 
 # Load dataset
 df = pd.read_csv('depression_dataset_processed.csv')
@@ -67,6 +71,10 @@ weak_corr_features = [
 # Radio button to select the correlation strength
 corr_strength = st.radio("Choose correlation strength to display:", ('Strong Correlation', 'Weak Correlation'))
 
+# Creating an expander for extra information
+with st.expander("ℹ️ More Information"):
+    st.write("""Based on a review of the literature, the dataset features have been categorized into two groups. Features with a higher correlation to depression are displayed in the heat map corresponding to the "Strong Correlation" option, while those with weaker correlations are shown in the heat map for the "Weak Correlation" option.""")
+
 # Filter the correlation matrix based on the selected features
 correlation_matrix = df.corr()
 
@@ -80,7 +88,7 @@ fig, ax = plt.subplots(figsize=(15, 10))
 sns.heatmap(correlation_matrix.loc[selected_features, selected_features], annot=False, cmap='coolwarm', ax=ax, center=0)
 st.pyplot(fig)
 
-st.markdown("---")  # Optional separator line
+st.markdown("---")  # separator line
 
 # Top Right Area: Correlation with Depression Diagnosis
 st.subheader("Correlation with Depression Diagnosis")
@@ -116,7 +124,7 @@ left_col, right_col = st.columns(2)
 
 # Left Bottom Area: Associations between Compulsion & Obsession Types and Depression
 with left_col:
-    st.markdown("---")  # Optional separator line
+    st.markdown("---")  # separator line
     st.subheader("Associations between Depression with Compulsion & Obsession Types")
     
     # Radio button to choose between Compulsion and Obsession types

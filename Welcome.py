@@ -13,19 +13,20 @@ st.set_page_config(
 )
 
 # Sidebar configuration
+st.sidebar.header("Depression Detection")
 st.sidebar.image("./assets/sidebar.png",)
 
 # Custom CSS to make the sidebar prettier
 st.markdown("""
     <style>
     .sidebar .sidebar-content {
-        background-color: #f0f2f6;
+        background-color: #f9f6f1;
     }
     .sidebar .sidebar-content h2 {
         color: #4b72b8;
     }
     .css-17eq0hr { 
-        background-color: #f0f2f6; 
+        background-color: #f9f6f1; 
     }
     </style>
     """, unsafe_allow_html=True)
