@@ -8,14 +8,21 @@ import seaborn as sns
 st.set_page_config(page_title="Descriptive Analytics", layout="wide")
 
 # Sidebar configuration
+st.sidebar.header("Depression Detection")
 st.sidebar.image("./assets/sidebar.png",)
 
-# Custom CSS to apply a navy blue theme
+# Custom CSS to make the sidebar prettier
 st.markdown("""
     <style>
     .sidebar .sidebar-content {
-        background-color: #f0f2f6;
-    })
+        background-color: #f9f6f1;
+    }
+    .sidebar .sidebar-content h2 {
+        color: #4b72b8;
+    }
+    .css-17eq0hr { 
+        background-color: #f9f6f1; 
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -73,7 +80,7 @@ with col2:
         # Prepare the pie chart data
         labels = ['With Diagnosis', 'Without Diagnosis']
         sizes = [total_with, total_without]
-        colors = ['#001f3f', '#004080']  # Navy blue shades
+        colors = ['#001f3f', '#99ccff']  # Navy blue shades
 
         # Create the pie chart
         fig, ax = plt.subplots()
@@ -99,7 +106,7 @@ def calculate_distribution(column_prefix, df):
     return distribution
 
 # Left Bottom Area: Distribution Bar Chart based on selected feature
-st.markdown("---")  # Optional separator line
+st.markdown("---")  # separator line
 
 st.subheader("Feature Distribution Analysis")
 
@@ -134,22 +141,63 @@ with col3:
         age_labels = ['0-18', '19-30', '31-45', '46-60', '60+']
         data_to_plot['age_group'] = pd.cut(data_to_plot['Age'], bins=age_bins, labels=age_labels)
         chart_data = data_to_plot['age_group'].value_counts().sort_index()
+
+        # Find the age group with the maximum count
+        max_group = chart_data.idxmax()
+        
+        # Create a bar chart for age distribution
+        fig, ax = plt.subplots()
+        colors = ['#99ccff' if label == max_group else '#001f3f' for label in chart_data.index]  # Highlight max count
+        ax.bar(chart_data.index, chart_data.values, color=colors)
+        ax.set_xlabel('Age Group')
+        ax.set_ylabel('Count')
+        ax.set_title('Distribution of Age', color='#001f3f')
+        st.pyplot(fig)
+
     elif feature_choice == 'Gender':
         chart_data = data_to_plot['Gender'].value_counts()
+
+        # Find the gender with the maximum count
+        max_gender = chart_data.idxmax()
+        
+        # Create a bar chart for gender distribution
+        fig, ax = plt.subplots()
+        colors = ['#99ccff' if label == max_gender else '#001f3f' for label in chart_data.index]  # Highlight max count
+        ax.bar(chart_data.index, chart_data.values, color=colors)
+        ax.set_xlabel('Gender')
+        ax.set_ylabel('Count')
+        ax.set_title('Distribution of Gender', color='#001f3f')
+        st.pyplot(fig)
+
     elif feature_choice == 'Marital Status':
         chart_data = calculate_distribution('Marital Status_', data_to_plot)
+
+        # Find the marital status with the maximum count
+        max_status = chart_data.idxmax()
+
+        # Create a bar chart for marital status distribution
+        fig, ax = plt.subplots()
+        colors = ['#99ccff' if label == max_status else '#001f3f' for label in chart_data.index]  # Highlight max count
+        ax.bar(chart_data.index, chart_data.values, color=colors)
+        ax.set_xlabel('Marital Status')
+        ax.set_ylabel('Count')
+        ax.set_title('Distribution of Marital Status', color='#001f3f')
+        st.pyplot(fig)
+
     elif feature_choice == 'Education Level':
         chart_data = calculate_distribution('Education Level_', data_to_plot)
 
-    # Create a bar chart for the selected feature using matplotlib
-    fig, ax = plt.subplots()
-    ax.bar(chart_data.index, chart_data.values, color='#001f3f')  # Navy blue bars
-    ax.set_xlabel(feature_choice)
-    ax.set_ylabel('Count')
-    ax.set_title(f'Distribution of {feature_choice}', color='#001f3f')
+        # Find the education level with the maximum count
+        max_education = chart_data.idxmax()
 
-    # Display the bar chart in the app
-    st.pyplot(fig)
+        # Create a bar chart for education level distribution
+        fig, ax = plt.subplots()
+        colors = ['#99ccff' if label == max_education else '#001f3f' for label in chart_data.index]  # Highlight max count
+        ax.bar(chart_data.index, chart_data.values, color=colors)
+        ax.set_xlabel('Education Level')
+        ax.set_ylabel('Count')
+        ax.set_title('Distribution of Education Level', color='#001f3f')
+        st.pyplot(fig)
 
 # Right Bottom Area: Distribution of Medications and Previous Diagnoses
 with col4:
@@ -184,9 +232,13 @@ with col4:
         }
         med_chart_df = pd.DataFrame(list(med_chart_data.items()), columns=['Medication', 'Count'])
 
+        # Find the medication with the maximum count
+        max_med = med_chart_df.loc[med_chart_df['Count'].idxmax(), 'Medication']
+
         # Create a bar chart using matplotlib for medications
         fig, ax = plt.subplots()
-        ax.bar(med_chart_df['Medication'], med_chart_df['Count'], color='#001f3f')  # Navy blue bars
+        colors = ['#99ccff' if label == max_med else '#001f3f' for label in med_chart_df['Medication']]  # Highlight max count
+        ax.bar(med_chart_df['Medication'], med_chart_df['Count'], color=colors)
         ax.set_xlabel('Medication')
         ax.set_ylabel('Count')
         ax.set_title('Distribution of Medications', color='#001f3f')
@@ -197,9 +249,13 @@ with col4:
     elif med_diag_choice == 'Previous Diagnosis':
         diag_chart_data = calculate_distribution('Previous Diagnoses_', med_data_to_plot)
 
+        # Find the diagnosis with the maximum count
+        max_diag = diag_chart_data.idxmax()
+
         # Create a bar chart using matplotlib for previous diagnoses
         fig, ax = plt.subplots()
-        ax.bar(diag_chart_data.index, diag_chart_data.values, color='#001f3f')  # Navy blue bars
+        colors = ['#99ccff' if label == max_diag else '#001f3f' for label in diag_chart_data.index]  # Highlight max count
+        ax.bar(diag_chart_data.index, diag_chart_data.values, color=colors)
         ax.set_xlabel('Previous Diagnoses')
         ax.set_ylabel('Count')
         ax.set_title('Distribution of Previous Diagnoses', color='#001f3f')
