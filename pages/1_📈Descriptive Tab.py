@@ -84,7 +84,7 @@ with col2:
 
         # Create the pie chart
         fig, ax = plt.subplots()
-        ax.pie(sizes, labels=labels, colors=colors, autopct='%1.1f%%', startangle=90, textprops={'color': "white"})
+        ax.pie(sizes, labels=labels, colors=colors, autopct='%1.1f%%', startangle=90, textprops={'color': "black"})
         ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
         # Display the pie chart in the app
