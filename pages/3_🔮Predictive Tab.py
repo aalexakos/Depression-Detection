@@ -3,6 +3,7 @@ import pandas as pd
 import shap
 import pickle
 from sklearn.ensemble import RandomForestClassifier
+import matplotlib.pyplot as plt
 
 # Page configuration
 st.set_page_config(page_title="Predictive Analytics", layout="wide")
@@ -46,6 +47,9 @@ st.title("🔮Predictive Tab - Depression Prediction")
 file_path = "./assets/best_model.pickle"
 with open(file_path, "rb") as file:
     model = pickle.load(file)
+
+# Initialize the SHAP explainer (for RandomForest)
+explainer = shap.TreeExplainer(model)
 
 # Function to take user inputs for prediction, organized into sections
 def user_input_features():
@@ -169,29 +173,40 @@ if st.button('Predict'):
     # Add some space between prediction result and expander
     st.write("")
     
-    # SHAP Explanation Section
+    # SHAP Explanation Section with Waterfall Plot
     with st.expander("Show SHAP Explanation", expanded=False):
         st.subheader("SHAP Explanation")
-
-        # Create a SHAP explainer using the trained model
-        explainer = shap.TreeExplainer(model)
-
-        # Calculate SHAP values for the input data
+        
+        # Compute SHAP values for the input
         shap_values = explainer.shap_values(input_df)
+        
+        # Create an Explanation object for the SHAP values
+        shap_explanation = shap.Explanation(
+            values=shap_values[0], 
+            base_values=explainer.expected_value[0], 
+            data=input_df.values[0], 
+            feature_names=input_df.columns
+        )
+        
+        # Generate SHAP waterfall plot for a single prediction
+        st.write("SHAP Waterfall Plot")
 
-        # Initialize shap_plot as None
-        shap_plot = None
+        # Use Matplotlib to render the plot in Streamlit
+        fig, ax = plt.subplots()
+        shap.waterfall_plot(shap_explanation)  # No ax argument needed
+        st.pyplot(fig)
 
-        # Check the shape of shap_values to determine how many classes are present
-        if isinstance(shap_values, list):
-            class_index = st.session_state.prediction_result
-            if len(shap_values) > class_index:
-                shap.initjs()
-                shap_plot = shap.force_plot(explainer.expected_value[class_index], shap_values[class_index][0], input_df.iloc[0, :])
+        # Add explanatory text
+        st.markdown("""
+        **Interpreting the SHAP Waterfall Plot**            
+        **Features:** The features are listed along the vertical axis.  
+        **SHAP Values:** The horizontal bars represent the SHAP values, indicating the impact of each feature on the prediction. Positive values push the prediction towards the positive class (indicating depression), while negative values push it towards the negative class (no depression).  
+        **Base Value:** The base value (shown as a dashed line) represents the average model output across the training dataset. The sum of the SHAP values, when added to the base value, gives the final model output for that specific prediction.
+        """)
 
-        if shap_plot is None:
-            st.warning("SHAP values could not be computed for both classes; only one class is present in the output.")
-        else:
-            st.components.v1.html(shap_plot.html(), height=300)
-
-
+    # Detailed insights based on SHAP values
+    with st.expander("Detailed Insights from SHAP Values", expanded=False):
+        top_features = pd.Series(shap_explanation.values, index=shap_explanation.feature_names).sort_values(ascending=False)       # Displaying top features with explanations
+        for feature, value in top_features.items():
+            impact = "positive" if value > 0 else "negative"
+            st.write(f"- **{feature}:** {value:.3f} (This feature has a {impact} impact on the prediction.)")
