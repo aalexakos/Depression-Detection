@@ -84,7 +84,7 @@ with col2:
 
         # Create the pie chart
         fig, ax = plt.subplots()
-        ax.pie(sizes, labels=labels, colors=colors, autopct='%1.1f%%', startangle=90, textprops={'color': "white"})
+        ax.pie(sizes, labels=labels, colors=colors, autopct='%1.1f%%', startangle=90, textprops={'color': "black"})
         ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
         # Display the pie chart in the app
@@ -155,11 +155,13 @@ with col3:
         st.pyplot(fig)
 
     elif feature_choice == 'Gender':
-        chart_data = data_to_plot['Gender'].value_counts()
+        # Assuming Gender in the dataset is encoded (e.g., 0 for Female, 1 for Male), map them to labels
+        gender_mapping = {0: 'Male', 1: 'Female'}
+        chart_data = data_to_plot['Gender'].map(gender_mapping).value_counts()
 
         # Find the gender with the maximum count
         max_gender = chart_data.idxmax()
-        
+
         # Create a bar chart for gender distribution
         fig, ax = plt.subplots()
         colors = ['#99ccff' if label == max_gender else '#001f3f' for label in chart_data.index]  # Highlight max count
@@ -167,6 +169,7 @@ with col3:
         ax.set_xlabel('Gender')
         ax.set_ylabel('Count')
         ax.set_title('Distribution of Gender', color='#001f3f')
+
         st.pyplot(fig)
 
     elif feature_choice == 'Marital Status':
@@ -262,3 +265,28 @@ with col4:
 
         # Display the bar chart
         st.pyplot(fig)
+
+st.write("ℹ️ Explanation for the Feature Distribution Analysis:")
+st.write("""In the bar charts, one of the bars is highlighted in light blue, indicating the bar with the highest count in each chart. This visual cue helps to quickly identify key insights in each chart.""")
+
+# Creating an expander for extra information and abbreviations
+with st.expander("ℹ️ More Information & Abbreviations"):
+    st.write("""
+    **Education Level:**
+    - Graduate Degree: Completed an advanced degree (e.g., Master's, PhD)
+    - College Degree: Completed a 4-year undergraduate program (e.g., Bachelor's)
+    - Some College: Attended college but did not complete a degree
+    - High School: Completed high school education
+    """)
+    st.write("""
+    **Medications:** 
+    - SNRI (Serotonin-Norepinephrine Reuptake Inhibitors)
+    - SSRI (Selective Serotonin Reuptake Inhibitors)
+    - Benzodiazepine (anti-anxiety medication)
+    """)
+    st.write("""
+    **Previous Diagnosis:** 
+    - MDD (Major Depressive Disorder)
+    - GAD (Generalized Anxiety Disorder)
+    - PTSD (Post-Traumatic Stress Disorder)
+    """)
