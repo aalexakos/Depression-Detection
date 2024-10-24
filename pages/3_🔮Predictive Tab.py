@@ -48,6 +48,12 @@ file_path = "./assets/best_model.pickle"
 with open(file_path, "rb") as file:
     model = pickle.load(file)
 
+# Display the number of features used by the model
+st.write(f"Number of features: {model.n_features_in_}")
+
+# Display the number of outputs
+st.write(f"Number of outputs: {model.n_outputs_}")
+
 # Initialize the SHAP explainer (for RandomForest)
 explainer = shap.TreeExplainer(model)
 
@@ -156,45 +162,40 @@ if st.button('Predict'):
     st.subheader("Prediction Result")
     
     if st.session_state.prediction_result == 1:
-        # Display depression result in a visually appealing card-like style
-        st.markdown("""
-            <div style="padding: 15px; background-color: #001f3f; border-radius: 10px; color: white; text-align: center; font-size: 24px;">
-                <span style="font-size: 28px;">Depression</span>
-            </div>
-        """, unsafe_allow_html=True)
+        st.markdown("Depression")
     else:
-        # Display no depression result in a visually appealing card-like style
-        st.markdown("""
-            <div style="padding: 15px; background-color: #001f3f; border-radius: 10px; color: white; text-align: center; font-size: 24px;">
-                <span style="font-size: 28px;">No Depression</span>
-            </div>
-        """, unsafe_allow_html=True)
+        st.markdown("No Depression")
 
     # Add some space between prediction result and expander
     st.write("")
     
     # SHAP Explanation Section with Waterfall Plot
     with st.expander("Show SHAP Explanation", expanded=False):
-        st.subheader("SHAP Explanation")
+        st.subheader("SHAP Waterfall Plot")
         
-        # Compute SHAP values for the input
+        # Compute SHAP values for the input (this will compute SHAP values for both classes in binary classification)
         shap_values = explainer.shap_values(input_df)
         
-        # Create an Explanation object for the SHAP values
+        # Focus on the SHAP values for the predicted class
+        predicted_class = st.session_state.prediction_result  # 0 for "No Depression", 1 for "Depression"
+        shap_values_for_predicted_class = shap_values[predicted_class]  # SHAP values for the predicted class
+        
+        # Create an Explanation object for the SHAP values (for the first instance)
         shap_explanation = shap.Explanation(
-            values=shap_values[0], 
-            base_values=explainer.expected_value[0], 
-            data=input_df.values[0], 
-            feature_names=input_df.columns
+            values=shap_values_for_predicted_class[0],  # SHAP values for the first instance
+            base_values=explainer.expected_value[predicted_class],  # Expected value for the predicted class
+            data=input_df.values[0],  # Input features for the first instance
+            feature_names=input_df.columns  # Feature names
         )
         
-        # Generate SHAP waterfall plot for a single prediction
-        st.write("SHAP Waterfall Plot")
-
-        # Use Matplotlib to render the plot in Streamlit
+        # Generate SHAP waterfall plot for a single prediction (showing the contribution of all 33 features)
+        st.write("SHAP Waterfall Plot for Predicted Class")
+        
+        # Use Matplotlib to render the SHAP waterfall plot in Streamlit
         fig, ax = plt.subplots()
         shap.waterfall_plot(shap_explanation)  # No ax argument needed
         st.pyplot(fig)
+
 
         # Add explanatory text
         st.markdown("""
