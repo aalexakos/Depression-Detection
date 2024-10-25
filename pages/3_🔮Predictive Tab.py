@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import shap
 import pickle
-from sklearn.ensemble import RandomForestClassifier
 import matplotlib.pyplot as plt
 
 # Page configuration

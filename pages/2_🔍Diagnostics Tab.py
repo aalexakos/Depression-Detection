@@ -48,44 +48,42 @@ dfh = df.drop(columns=['Patient ID', 'Duration of Symptoms (months)',
                       'Ethnicity_African', 'Ethnicity_Hispanic', 
                       'Ethnicity_Asian', 'Ethnicity_Caucasian'])
 
-# Top Left Area: Heatmap of correlations between all features
-st.subheader("Feature Correlation Heatmap")
+# Top Left Area: Bar chart of correlations between all features and Depression Diagnosis
+st.subheader("Feature Correlation with Depression Diagnosis")
+
+# Calculate correlations with Depression Diagnosis
+correlation_matrix = df.corr()
+correlation_with_depression = correlation_matrix['Depression Diagnosis'].drop('Depression Diagnosis')
+
+# Define thresholds for strong and weak correlations
+strong_threshold = 0.05
+weak_threshold = -0.05
 
 # Split features into strong and weak correlation categories
-strong_corr_features = [
-    'Age', 'Gender', 'Family History of OCD', 'Education Level_High School', 
-    'Education Level_Some College', 'Education Level_College Degree', 'Education Level_Graduate Degree', 
-    'Marital Status_Single', 'Marital Status_Divorced', 'Marital Status_Married', 
-    'Previous Diagnoses_MDD', 'Previous Diagnoses_None', 'Previous Diagnoses_PTSD', 
-    'Previous Diagnoses_GAD', 'Previous Diagnoses_Panic Disorder'
-]
-
-weak_corr_features = [
-    'Y-BOCS Score (Obsessions)', 'Y-BOCS Score (Compulsions)', 'Anxiety Diagnosis', 
-    'Obsession Type_Harm-related', 'Obsession Type_Contamination', 'Obsession Type_Symmetry', 
-    'Obsession Type_Hoarding', 'Obsession Type_Religious', 
-    'Compulsion_Type_Checking', 'Compulsion_Type_Washing', 'Compulsion_Type_Ordering', 
-    'Compulsion_Type_Praying', 'Compulsion_Type_Counting'
-]
+strong_corr_features = correlation_with_depression[(correlation_with_depression >= strong_threshold) | (correlation_with_depression <= -strong_threshold)].index.tolist()
+weak_corr_features = correlation_with_depression[(correlation_with_depression < strong_threshold) & (correlation_with_depression > weak_threshold)].index.tolist()
 
 # Radio button to select the correlation strength
 corr_strength = st.radio("Choose correlation strength to display:", ('Strong Correlation', 'Weak Correlation'))
 
 # Creating an expander for extra information
 with st.expander("ℹ️ More Information"):
-    st.write("""Based on a review of the literature, the dataset features have been categorized into two groups. Features with a higher correlation to depression are displayed in the heat map corresponding to the "Strong Correlation" option, while those with weaker correlations are shown in the heat map for the "Weak Correlation" option.""")
+    st.write("""Based on a review of the literature, the dataset features have been categorized into two groups. Features with a higher correlation to depression are displayed in the bar chart corresponding to the "Strong Correlation" option, while those with weaker correlations are shown in the bar chart for the "Weak Correlation" option.""")
 
-# Filter the correlation matrix based on the selected features
-correlation_matrix = df.corr()
-
+# Select features based on correlation strength
 if corr_strength == 'Strong Correlation':
-    selected_features = strong_corr_features + ['Depression Diagnosis']
+    selected_features = strong_corr_features
 else:
-    selected_features = weak_corr_features + ['Depression Diagnosis']
+    selected_features = weak_corr_features
 
-# Display the heatmap
+# Get correlation values with Depression Diagnosis for the selected features
+correlation_values = correlation_with_depression.loc[selected_features]
+
+# Display the bar chart of correlations
 fig, ax = plt.subplots(figsize=(15, 10))
-sns.heatmap(correlation_matrix.loc[selected_features, selected_features], annot=False, cmap='coolwarm', ax=ax, center=0)
+correlation_values.sort_values().plot(kind='barh', ax=ax, color='skyblue')
+ax.set_xlabel('Correlation Coefficient')
+ax.set_title('Correlation between Selected Features and Depression Diagnosis')
 st.pyplot(fig)
 
 st.markdown("---")  # separator line
@@ -96,7 +94,7 @@ st.subheader("Correlation with Depression Diagnosis")
 # Dropdown to select a specific feature
 feature_choice = st.selectbox(
     "Select a specific feature to see the correlation with depression diagnosis:",
-    selected_features[:-1]  # Exclude 'Depression Diagnosis' from the dropdown
+    selected_features
 )
 
 # Get the correlation value between the selected feature and 'Depression Diagnosis'
@@ -133,8 +131,9 @@ with left_col:
         ['Compulsion Types', 'Obsession Types']
     )
 
-    # Plot correlations based on the selection
     if assoc_choice == 'Compulsion Types':
+        st.write("The different types of compulsions can have varying correlations with depression. Below is a chart showing the strength of these correlations based on data from patients' reported compulsions.")
+
         # Calculate the correlation between compulsion types and Depression Diagnosis
         compulsion_correlations = df[['Compulsion_Type_Checking', 'Compulsion_Type_Washing', 'Compulsion_Type_Ordering',
                                     'Compulsion_Type_Praying', 'Compulsion_Type_Counting', 'Depression Diagnosis']].corr()['Depression Diagnosis'][:-1]
@@ -149,7 +148,17 @@ with left_col:
         ax.set_title('Correlation between Compulsion Types and Depression Diagnosis')
         st.pyplot(fig)
 
+        # Explanation of the findings
+        st.write("""
+            Compulsions, or repetitive behaviors, are a hallmark of OCD and can influence the likelihood of a comorbid 
+            depression diagnosis. For example, compulsions like checking and washing, which can dominate daily life, 
+            are often associated with higher levels of anxiety and stress, potentially contributing to depressive symptoms. 
+            Understanding these correlations helps in developing more targeted interventions for individuals with co-occurring OCD and depression.
+        """)
+
     elif assoc_choice == 'Obsession Types':
+        st.write("Obsessions can vary in their impact on depression. This chart visualizes how different types of obsessive thoughts correlate with depression diagnosis.")
+
         # Calculate the correlation between obsession types and Depression Diagnosis
         obsession_correlations = df[['Obsession Type_Harm-related', 'Obsession Type_Contamination', 'Obsession Type_Symmetry',
                                     'Obsession Type_Hoarding', 'Obsession Type_Religious', 'Depression Diagnosis']].corr()['Depression Diagnosis'][:-1]
@@ -164,98 +173,63 @@ with left_col:
         ax.set_title('Correlation between Obsession Types and Depression Diagnosis')
         st.pyplot(fig)
 
+        # Explanation of the findings
+        st.write("""
+            Obsessive thoughts, such as those related to harm, contamination, or symmetry, can also influence the severity of depression in patients with OCD. 
+            For instance, harm-related obsessions, which are often associated with intense guilt and fear, may be linked to a higher risk of depression. 
+            These insights help clinicians understand the interplay between OCD symptoms and depression, aiding in more holistic treatment approaches.
+        """)
 
-# Right Bottom Area: Relationship between Demographics and Depression Likelihood
+
+# Right Bottom Area: Y-BOCS Score and Depression Diagnosis Analysis
 with right_col:
     st.markdown("---")  # Optional separator line
-    st.subheader("Relationship between Patients' Demographic Factors and the Likelihood of Depression")
+    st.subheader("Y-BOCS Scores and Their Impact on Depression Diagnosis")
 
-    # Dropdown to select demographic factor
-    demographic_choice = st.selectbox(
-        "Select a demographic factor to analyze:",
-        ['Age', 'Gender', 'Ethnicity']
+    # Dropdown to select the type of Y-BOCS score to analyze
+    ybocs_choice = st.selectbox(
+        "Select Y-BOCS score type to analyze:",
+        ['Y-BOCS Obsession Scores', 'Y-BOCS Compulsion Scores', 'Total Y-BOCS Score']
     )
 
-    # Display relationship based on the selected demographic factor
-    if demographic_choice == 'Age':
-        # Calculate the percentage of patients with and without depression in each age group
-        age_bins = [0, 18, 30, 45, 60, 100]
-        age_labels = ['0-18', '19-30', '31-45', '46-60', '60+']
-        df['age_group'] = pd.cut(df['Age'], bins=age_bins, labels=age_labels)
-        age_depression = df.groupby('age_group', observed=False)['Depression Diagnosis'].mean() * 100
-        age_no_depression = 100 - age_depression  # Patients without depression
+    if ybocs_choice == 'Y-BOCS Obsession Scores':
+        st.write("The Y-BOCS obsession score reflects the severity of obsessive thoughts. Below, we use a box plot to compare obsession scores for patients with and without depression.")
 
-        # Define positions for side-by-side bars
-        bar_width = 0.35
-        age_groups = np.arange(len(age_depression))  # positions of age groups
-        
-        # Plot side-by-side bars for depression and no-depression
+        # Box plot for Y-BOCS Obsession Scores vs Depression Diagnosis
         fig, ax = plt.subplots(figsize=(10, 6))
-        ax.bar(age_groups - bar_width / 2, age_depression, bar_width, label='Depression Diagnosis', color='#003366')
-        ax.bar(age_groups + bar_width / 2, age_no_depression, bar_width, label='No Depression Diagnosis', color='#99ccff')
-
-        ax.set_xticks(age_groups)
-        ax.set_xticklabels(age_depression.index, rotation=45)
-        ax.set_xlabel('Age Group')
-        ax.set_ylabel('Percentage')
-        ax.set_title('Depression Diagnosis by Age Group')
-        ax.legend()
+        sns.boxplot(x=df['Depression Diagnosis'], y=df['Y-BOCS Score (Obsessions)'], ax=ax)
+        ax.set_xlabel('Depression Diagnosis (0 = No, 1 = Yes)')
+        ax.set_ylabel('Y-BOCS Obsession Score')
+        ax.set_title('Y-BOCS Obsession Scores vs Depression Diagnosis')
         st.pyplot(fig)
 
-    elif demographic_choice == 'Gender':
-        # Calculate the percentage of patients with and without depression by gender
-        gender_depression = df.groupby('Gender')['Depression Diagnosis'].mean() * 100
-        gender_no_depression = 100 - gender_depression
-        
-        # Map 0 to 'Male' and 1 to 'Female' for better readability
-        gender_labels = {0: 'Male', 1: 'Female'}
-        gender_depression.index = gender_depression.index.map(gender_labels)
-        gender_no_depression.index = gender_no_depression.index.map(gender_labels)
+    elif ybocs_choice == 'Y-BOCS Compulsion Scores':
+        st.write("The Y-BOCS compulsion score reflects the severity of compulsive behaviors. Below, we use a box plot to compare compulsion scores for patients with and without depression.")
 
-        # Define positions for side-by-side bars
-        bar_width = 0.35
-        gender_groups = np.arange(len(gender_depression))  # positions of gender groups
-
-        # Plot side-by-side bars for depression and no-depression
-        fig, ax = plt.subplots(figsize=(8, 5))
-        ax.bar(gender_groups - bar_width / 2, gender_depression, bar_width, label='Depression Diagnosis', color='#003366')
-        ax.bar(gender_groups + bar_width / 2, gender_no_depression, bar_width, label='No Depression Diagnosis', color='#99ccff')
-
-        ax.set_xticks(gender_groups)
-        ax.set_xticklabels(gender_depression.index, rotation=45)
-        ax.set_xlabel('Gender')
-        ax.set_ylabel('Percentage')
-        ax.set_title('Depression Diagnosis by Gender')
-        ax.legend()
+        # Box plot for Y-BOCS Compulsion Scores vs Depression Diagnosis
+        fig, ax = plt.subplots(figsize=(10, 6))
+        sns.boxplot(x=df['Depression Diagnosis'], y=df['Y-BOCS Score (Compulsions)'], ax=ax)
+        ax.set_xlabel('Depression Diagnosis (0 = No, 1 = Yes)')
+        ax.set_ylabel('Y-BOCS Compulsion Score')
+        ax.set_title('Y-BOCS Compulsion Scores vs Depression Diagnosis')
         st.pyplot(fig)
 
-    elif demographic_choice == 'Ethnicity':
-        # Calculate the number of patients with and without depression by ethnicity
-        ethnicity_columns = ['Ethnicity_African', 'Ethnicity_Hispanic', 'Ethnicity_Asian', 'Ethnicity_Caucasian']
-        
-        # Calculate percentage with depression diagnosis for each ethnicity
-        ethnicity_depression = df[ethnicity_columns].mul(df['Depression Diagnosis'], axis=0).mean() * 100
-        
-        # Calculate percentage without depression diagnosis for each ethnicity
-        ethnicity_no_depression = df[ethnicity_columns].mul(1 - df['Depression Diagnosis'], axis=0).mean() * 100
-        
-        # Rename the columns for better readability
-        ethnicity_depression.index = ['African', 'Hispanic', 'Asian', 'Caucasian']
-        ethnicity_no_depression.index = ethnicity_depression.index
+    elif ybocs_choice == 'Total Y-BOCS Score':
+        # Calculate Total Y-BOCS score
+        df['Total Y-BOCS Score'] = df['Y-BOCS Score (Obsessions)'] + df['Y-BOCS Score (Compulsions)']
+        st.write("The total Y-BOCS score is a sum of both obsession and compulsion scores. Below, we use a box plot to compare total Y-BOCS scores for patients with and without depression.")
 
-        # Define positions for side-by-side bars
-        bar_width = 0.35
-        ethnicity_groups = np.arange(len(ethnicity_depression))  # positions of ethnicity groups
-
-        # Plot side-by-side bars for depression and no-depression
-        fig, ax = plt.subplots(figsize=(8, 5))
-        ax.bar(ethnicity_groups - bar_width / 2, ethnicity_depression, bar_width, label='Depression Diagnosis', color='#003366')
-        ax.bar(ethnicity_groups + bar_width / 2, ethnicity_no_depression, bar_width, label='No Depression Diagnosis', color='#99ccff')
-
-        ax.set_xticks(ethnicity_groups)
-        ax.set_xticklabels(ethnicity_depression.index, rotation=45)
-        ax.set_xlabel('Ethnicity')
-        ax.set_ylabel('Percentage')
-        ax.set_title('Depression Diagnosis by Ethnicity')
-        ax.legend()
+        # Box plot for Total Y-BOCS Scores vs Depression Diagnosis
+        fig, ax = plt.subplots(figsize=(10, 6))
+        sns.boxplot(x=df['Depression Diagnosis'], y=df['Total Y-BOCS Score'], ax=ax)
+        ax.set_xlabel('Depression Diagnosis (0 = No, 1 = Yes)')
+        ax.set_ylabel('Total Y-BOCS Score')
+        ax.set_title('Total Y-BOCS Score vs Depression Diagnosis')
         st.pyplot(fig)
+
+    # Interpretation and diagnostic relevance
+    st.write("""
+        The Y-BOCS score is a standard clinical measure to assess the severity of obsessive-compulsive symptoms. The box 
+        plots allow us to see how patients with depression compare in their OCD symptom severity, which can help in diagnosing 
+        and tailoring treatment for comorbid conditions.
+    """)
