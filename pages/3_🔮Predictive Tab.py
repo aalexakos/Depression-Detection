@@ -3,6 +3,11 @@ import pandas as pd
 import shap
 import pickle
 import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.linear_model import LogisticRegression
 
 # Page configuration
 st.set_page_config(page_title="Predictive Analytics", layout="wide")
@@ -47,9 +52,6 @@ file_path = "./assets/best_model.pickle"
 with open(file_path, "rb") as file:
     model = pickle.load(file)
 
-# Initialize the SHAP explainer (for RandomForest)
-explainer = shap.TreeExplainer(model)
-
 # Function to take user inputs for prediction, organized into sections
 def user_input_features():
     st.header("Demographic & Lifestyle Data")
@@ -59,7 +61,6 @@ def user_input_features():
         age = st.number_input('Age', min_value=18, max_value=100, value=30)
         gender = st.selectbox('Gender', ['Male', 'Female'])
         marital_status = st.selectbox('Marital Status', ['Single', 'Divorced', 'Married'])
-        ethnicity = st.selectbox('Ethnicity', ['African', 'Asian', 'Caucasian', 'Hispanic'])
     with col2:
         education_level = st.selectbox('Education Level', ['Some College', 'College Degree', 'High School', 'Graduate Degree'])
         duration_symptoms = st.slider('Duration of Symptoms (months)', 0, 60, 12)
@@ -122,11 +123,6 @@ def user_input_features():
         'Previous Diagnoses_PTSD': 1 if previous_diagnosis == 'PTSD' else 0,
         'Previous Diagnoses_GAD': 1 if previous_diagnosis == 'GAD' else 0,
         'Previous Diagnoses_Panic Disorder': 1 if previous_diagnosis == 'Panic Disorder' else 0,
-
-        'Ethnicity_African': 1 if ethnicity == 'African' else 0,
-        'Ethnicity_Asian': 1 if ethnicity == 'Asian' else 0,
-        'Ethnicity_Caucasian': 1 if ethnicity == 'Caucasian' else 0,
-        'Ethnicity_Hispanic': 1 if ethnicity == 'Hispanic' else 0,
     }
 
     # Convert the dictionary to a DataFrame
@@ -136,8 +132,20 @@ def user_input_features():
 # Store user input features
 input_df = user_input_features()
 
+# Select appropriate SHAP explainer based on the model type
+if isinstance(model, (RandomForestClassifier, DecisionTreeClassifier)):
+    explainer = shap.TreeExplainer(model)
+elif isinstance(model, (LogisticRegression, GaussianNB)):
+    # Use KernelExplainer for models not supported by TreeExplainer
+    if not input_df.empty:
+        background_data = input_df.sample(min(100, len(input_df)), random_state=42)
+        explainer = shap.KernelExplainer(model.predict_proba, background_data)
+else:
+    st.error("Unsupported model type for SHAP analysis.")
+    st.stop()
+
 # Button to trigger prediction
-if st.button('Predict'):
+if st.button('Predict') and not input_df.empty:
     # Reorder the input features based on the order used in model training
     input_df = input_df[model.feature_names_in_]
 
@@ -153,59 +161,52 @@ if st.button('Predict'):
 
     # Display the prediction result
     st.subheader("Prediction Result")
-    
     if st.session_state.prediction_result == 1:
-        # Display depression result in a visually appealing card-like style
-        st.markdown("""
-            <div style="padding: 15px; background-color: #001f3f; border-radius: 10px; color: white; text-align: center; font-size: 24px;">
-                <span style="font-size: 28px;">Depression</span>
-            </div>
-        """, unsafe_allow_html=True)
+        st.markdown("Depression")
     else:
-        # Display no depression result in a visually appealing card-like style
-        st.markdown("""
-            <div style="padding: 15px; background-color: #001f3f; border-radius: 10px; color: white; text-align: center; font-size: 24px;">
-                <span style="font-size: 28px;">No Depression</span>
-            </div>
-        """, unsafe_allow_html=True)
+        st.markdown("No Depression")
 
-    # Add some space between prediction result and expander
-    st.write("")
-    
     # SHAP Explanation Section with Waterfall Plot
     with st.expander("Show SHAP Explanation", expanded=False):
-        st.subheader("SHAP Explanation")
+        st.subheader("SHAP Waterfall Plot")
         
         # Compute SHAP values for the input
         shap_values = explainer.shap_values(input_df)
         
-        # Create an Explanation object for the SHAP values
-        shap_explanation = shap.Explanation(
-            values=shap_values[0], 
-            base_values=explainer.expected_value[0], 
-            data=input_df.values[0], 
-            feature_names=input_df.columns
-        )
+        # Make sure to define predicted_class based on the prediction
+        predicted_class = st.session_state.prediction_result  # 0 for "No Depression", 1 for "Depression"
         
-        # Generate SHAP waterfall plot for a single prediction
-        st.write("SHAP Waterfall Plot")
+        # Check if the SHAP values are returned as a list (for multi-class outputs) or a single array
+        if isinstance(shap_values, list):
+            # Multiple outputs (e.g., for binary classification)
+            shap_values_for_predicted_class = shap_values[predicted_class]  # Select SHAP values for the predicted class
+        else:
+            # Single output, use the shap_values directly
+            shap_values_for_predicted_class = shap_values
+        
+        # Select the SHAP values for the first instance and the predicted class
+        shap_values_for_instance = shap_values_for_predicted_class[0]  # SHAP values for the first prediction instance
+        
+        # If there are multiple outputs, select the SHAP values for the specific output (predicted class)
+        if shap_values_for_instance.ndim > 1:
+            shap_values_for_instance = shap_values_for_instance[:, predicted_class]
+        
+        # Create an Explanation object for the SHAP values (for the first instance)
+        shap_explanation = shap.Explanation(
+            values=shap_values_for_instance,  # SHAP values for the first instance
+            base_values=explainer.expected_value[predicted_class],  # Expected value for the predicted class
+            data=input_df.values[0],  # Input features for the first instance
+            feature_names=input_df.columns  # Feature names
+        )
 
-        # Use Matplotlib to render the plot in Streamlit
+        # Generate SHAP waterfall plot for a single prediction, showing all features
         fig, ax = plt.subplots()
-        shap.waterfall_plot(shap_explanation)  # No ax argument needed
+        shap.waterfall_plot(shap_explanation, max_display=10, )  # Display all 37 features
         st.pyplot(fig)
 
         # Add explanatory text
         st.markdown("""
-        **Interpreting the SHAP Waterfall Plot**            
-        **Features:** The features are listed along the vertical axis.  
-        **SHAP Values:** The horizontal bars represent the SHAP values, indicating the impact of each feature on the prediction. Positive values push the prediction towards the positive class (indicating depression), while negative values push it towards the negative class (no depression).  
-        **Base Value:** The base value (shown as a dashed line) represents the average model output across the training dataset. The sum of the SHAP values, when added to the base value, gives the final model output for that specific prediction.
+        **Interpreting the SHAP Waterfall Plot**
+        **Features:** The features are listed along the vertical axis.
+        **SHAP Values:** The horizontal bars represent the SHAP values, indicating the impact of each feature on the prediction.
         """)
-
-    # Detailed insights based on SHAP values
-    with st.expander("Detailed Insights from SHAP Values", expanded=False):
-        top_features = pd.Series(shap_explanation.values, index=shap_explanation.feature_names).sort_values(ascending=False)       # Displaying top features with explanations
-        for feature, value in top_features.items():
-            impact = "positive" if value > 0 else "negative"
-            st.write(f"- **{feature}:** {value:.3f} (This feature has a {impact} impact on the prediction.)")
