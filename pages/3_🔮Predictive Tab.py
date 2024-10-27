@@ -210,3 +210,10 @@ if st.button('Predict') and not input_df.empty:
         **Features:** The features are listed along the vertical axis.
         **SHAP Values:** The horizontal bars represent the SHAP values, indicating the impact of each feature on the prediction.
         """)
+    
+    # Detailed insights based on SHAP values
+    with st.expander("Detailed Insights from SHAP Values", expanded=False):
+        top_features = pd.Series(shap_explanation.values, index=shap_explanation.feature_names).sort_values(ascending=False)       # Displaying top features with explanations
+        for feature, value in top_features.items():
+            impact = "positive" if value > 0 else "negative"
+            st.write(f"- **{feature}:** {value:.3f} (This feature has a {impact} impact on the prediction.)")
