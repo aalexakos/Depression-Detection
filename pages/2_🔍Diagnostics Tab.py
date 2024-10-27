@@ -52,7 +52,7 @@ dfh = df.drop(columns=['Patient ID', 'Duration of Symptoms (months)',
 st.subheader("Feature Correlation with Depression Diagnosis")
 
 # Calculate correlations with Depression Diagnosis
-correlation_matrix = df.corr()
+correlation_matrix = dfh.corr()
 correlation_with_depression = correlation_matrix['Depression Diagnosis'].drop('Depression Diagnosis')
 
 # Define thresholds for strong and weak correlations
